@@ -1,24 +1,28 @@
 import requests
 import base64
 
+import logging
+
+### TODO:
+### Setup logging
 
 class NextcloudNewsApi:
 
     baseurl = None
-
     header = None
 
     def __init__(self, nextcloudUrl, username, password) -> None:
         self.baseurl = nextcloudUrl + "/index.php/apps/news/api/v1-2/"
 
-        auth = "base64(" + username + ":" + password + ")"
-        print(base64.b64encode(bytes(auth, "ascii")))
+        #auth = "base64(" + username + ":" + password + ")"
+        auth = username + ":" + password 
+        print(base64.b64encode(bytes(auth, "utf-8")))
         self.header = {
             "Authorization": "Basic " + base64.b64encode(bytes(auth, "utf-8")).decode()
         }
 
     
-    def getUnread(self,batchSize=None,offset=None,type=None,id=None,getRead=None,oldestFirst=None):
+    def getUnread(self,batchSize=-1,offset=None,type=3,id=None,getRead='false',oldestFirst='false'):
         route = "items"
 
         params = {
@@ -30,7 +34,12 @@ class NextcloudNewsApi:
             "oldestFirst": oldestFirst  # implemented in 3.002, if true it reverse the sort order
         }
 
-        return self.get(route=route, params=params)
+        r = self.get(route=route, params=params)
+
+        logging.info("Route:" + route + " \n Status code:" + str(r.status_code))
+        print(r.status_code)
+
+        return r
 
     def get(self, route, params):
 
@@ -38,10 +47,20 @@ class NextcloudNewsApi:
 
         return requests.get(url=self.baseurl + route, headers=self.header, verify=False, params=params)
 
-def main():
-    newsApi = NextcloudNewsApi(nextcloudUrl="https://nextcloud.tail", username="ncp", password="")
 
-    print(newsApi.getUnread(type=3,getRead=False,batchSize=-1))
+def main():
+    newsApi = NextcloudNewsApi(nextcloudUrl="https://nextcloud.tail", username="ncp", password="459799OoMatt")
+    print(newsApi.header)
+
+    unread = newsApi.getUnread().json()
+    print(unread['items'])
+
+    for item in unread['items']:
+        print("-"*50)
+        print("Title:" + item['title'])
+        print("Read:" + str(item['unread']))
+        print("Feedid:" + str(item['feedId']))
+        print("-"*50)
 
 if __name__ == "__main__":
     main()
