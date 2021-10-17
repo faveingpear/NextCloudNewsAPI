@@ -11,7 +11,14 @@ class NextcloudNewsApi:
     baseurl = None
     header = None
 
-    def __init__(self, nextcloudUrl, username, password) -> None:
+    def __init__(self, nextcloudUrl=None, username=None, password=None) -> None:
+
+        if  nextcloudUrl == None and username == None and password == None:
+            pass
+        else:
+            self.auth(nextcloudUrl=nextcloudUrl, username=username, password=password)
+
+    def auth(self, nextcloudUrl, username, password):
         self.baseurl = nextcloudUrl + "/index.php/apps/news/api/v1-2/"
 
         #auth = "base64(" + username + ":" + password + ")"
@@ -21,6 +28,7 @@ class NextcloudNewsApi:
             "Authorization": "Basic " + base64.b64encode(bytes(auth, "utf-8")).decode()
         }
 
+        logging.info("NewsApi: Generated auth tokens")
     
     def getUnread(self,batchSize=-1,offset=None,type=3,id=None,getRead='false',oldestFirst='false'):
         route = "items"
@@ -49,7 +57,8 @@ class NextcloudNewsApi:
 
 
 def main():
-    newsApi = NextcloudNewsApi(nextcloudUrl="https://nextcloud.tail", username="ncp", password="459799OoMatt")
+    newsApi = NextcloudNewsApi()
+    newsApi.auth(nextcloudUrl="https://nextcloud.tail", username="ncp", password="459799OoMatt")
     print(newsApi.header)
 
     unread = newsApi.getUnread().json()
