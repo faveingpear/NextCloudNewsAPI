@@ -11,9 +11,12 @@ class NextcloudNewsApi:
     baseurl = None
     header = None
 
-    def __init__(self, nextcloudUrl=None, username=None, password=None) -> None:
+    def __init__(self,appName, nextcloudUrl=None, username=None, password=None) -> None:
+
+        self.appName= appName
 
         if  nextcloudUrl == None and username == None and password == None:
+            logging.info(self.appName + ": No url,username,password inputed, skipping authentication")
             pass
         else:
             self.auth(nextcloudUrl=nextcloudUrl, username=username, password=password)
