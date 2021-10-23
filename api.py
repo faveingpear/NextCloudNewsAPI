@@ -68,6 +68,21 @@ class NextcloudNewsApi:
 
         return r.json()
 
+    def getFeeds(self):
+        route = "feeds"
+
+        params = {
+
+        }
+
+        r = self.get(route=route, params=params)
+
+        logging.info(self.appName +": Route:" + route + " \n Status code:" + str(r.status_code))
+
+        self.errorHandeler(status_code=r.status_code)
+
+        return r.json()
+
     def getUnread(self,batchSize=-1,offset=None,type=3,id=None,getRead='false',oldestFirst='false'):
         route = "items"
 
